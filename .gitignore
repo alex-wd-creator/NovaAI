@@ -4,16 +4,16 @@ venv/
 # Variables de entorno
 .env
 
-# Base de datos
-data/*.db
+# Base de datos local
+data/nova.db
 
 # Caché de Python
 __pycache__/
-*.pyc
-
-# Configuración de VS Code
-.vscode/
+*.py[cod]
 
 # Archivos del sistema
 .DS_Store
 Thumbs.db
+
+# Configuración de VS Code (opcional)
+.vscode/

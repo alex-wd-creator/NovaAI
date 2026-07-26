@@ -4,20 +4,26 @@ from memory.rules import MEMORY_RULES
 class MemoryManager:
 
     def save_memory(self, category: str, value: str) -> None:
-
         conn = get_connection()
         cursor = conn.cursor()
 
-        rule = MEMORY_RULES.get(
-            category,
-            {"multiple": True}
-        )
+        rule = MEMORY_RULES.get(category, {"multiple": True})
 
         if not rule["multiple"]:
             cursor.execute(
                 "DELETE FROM memories WHERE category = ?",
                 (category,)
             )
+        else:
+            cursor.execute(
+                "SELECT 1 FROM memories WHERE category = ? AND value = ?",
+                (category, value)
+            )
+            resultado = cursor.fetchone()
+
+            if resultado is not None:
+                conn.close()
+                return
 
         cursor.execute(
             "INSERT INTO memories (category, value) VALUES (?, ?)",

@@ -10,8 +10,7 @@ class MemoryExtractor:
         SYSTEM_PROMPT = """
         Eres un extractor de memoria para una IA.
 
-        Tu única tarea es analizar el mensaje del usuario y extraer
-        únicamente la información útil para recordar a largo plazo.
+        Tu única tarea es analizar el mensaje del usuario y extraer únicamente la información útil para recordar a largo plazo.
 
         Extrae únicamente:
 
@@ -29,27 +28,35 @@ class MemoryExtractor:
 
         - Saludos
         - Conversación casual
-        - Pregunemporales
-        - Estados de ántas
-        - Emociones timo
+        - Preguntas
+        - Estados de ánimo temporales
+        - Emociones temporales
         - Clima
         - Hora
         - Información pasajera
 
-        Responde EXCLUSIVAMENTE con un JSON válido.
+        Responde EXCLUSIVAMENTE con un JSON válido con este formato:
 
-        Formato:
+        {
+            "should_save": true,
+            "memories": [
+                {
+                    "category": "Nombre",
+                    "value": "Alex"
+                }
+            ]
+        }
 
-        [
-            {
-                "category": "Nombre",
-                "value": "Alex"
-            }
-        ]
+        Si no hay información relevante, responde exactamente:
 
-        Si no hay información relevante responde exactamente:
+        {
+            "should_save": false,
+            "memories": []
+        }
 
-        []
+        No escribas explicaciones.
+        No uses Markdown.
+        No escribas texto fuera del JSON.
         """
 
         messages = [
@@ -74,10 +81,10 @@ class MemoryExtractor:
 
 
         # convertir con json.loads()
-        try:
-            result = json.loads(result)
-        except json.JSONDecodeError:
-            result = []
 
-        # devolver el resultado
-        return result
+        try:
+            data = json.loads(result)
+        except json.JSONDecodeError:
+            return {"should_save": False, "memories": []}
+
+        return data
