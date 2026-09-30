@@ -3,6 +3,10 @@ from memory.memory import MemoryManager
 from core.prompt_builder import PromptBuilder
 from core.client import client, MODEL
 from memory.memory_service import MemoryService
+from tools.tool_manager import ToolManager
+from tools.registry import register_tools
+from tools.tool_executor import ToolExecutor
+from core.tool_decision import ToolDecision
 
 
 class AI:
@@ -12,6 +16,16 @@ class AI:
         self.memory = MemoryManager()
         self.prompt_builder = PromptBuilder()
         self.memory_service = MemoryService()
+
+        # sistema de herramientas
+        self.tool_manager = ToolManager()
+
+        register_tools(self.tool_manager)
+
+        self.tool_executor = ToolExecutor(self.tool_manager)
+
+        self.tool_decision = ToolDecision()
+        
 
 
         self.messages = []
@@ -24,6 +38,31 @@ class AI:
         
 
     def chat(self, user_message: str):
+
+
+
+        decision = self.tool_decision.decide(user_message)
+
+        if decision.get("use_tool"):
+
+            tool_call = {
+                "tool": decision.get("tool"),
+                "arguments": decision.get("arguments", {})
+            }
+
+            import json
+
+            result = self.tool_executor.execute(
+                json.dumps(tool_call)
+            )
+
+            user_message = (
+                f"{user_message}\n\n"
+                f"Resultado de la herramienta:\n"
+                f"{result}"
+            )
+
+
 
         self.messages.append(
             {
